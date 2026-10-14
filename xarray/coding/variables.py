@@ -185,6 +185,9 @@ def _check_fill_values(attrs, name, dtype):
     for attr in ("missing_value", "_FillValue"):
         pop_to(attrs, raw_fill_dict, attr, name=name)
     encoded_fill_values = set()
+    if np.dtype(dtype).fields is not None:
+        return raw_fill_dict, encoded_fill_values
+
     for k in list(raw_fill_dict):
         v = raw_fill_dict[k]
         kfill = {fv for fv in np.ravel(v) if not pd.isnull(fv)}

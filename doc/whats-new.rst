@@ -84,6 +84,10 @@ Deprecations
 
 Bug Fixes
 ~~~~~~~~~
+- Structured-dtype variables with ``_FillValue`` can now be read from Zarr v2
+  stores. Their fill value is preserved in the variable encoding without
+  attempting unsupported NaN masking (:issue:`10591`).
+  By `lowgame <https://github.com/lowgame>`_.
 - ``get_chunked_array_type`` no longer raises ``TypeError`` when a ``Dataset`` holds
   several chunked array types that one chunk manager recognizes. Arrays are now grouped
   by the chunk manager that claims them rather than by their type, so the error is

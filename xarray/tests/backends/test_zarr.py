@@ -1378,6 +1378,21 @@ class ZarrBase(CFEncodedBase):
             # ``raise_on_invalid=vn in check_encoding_set`` line in zarr.py
             # ds.foo.encoding["fill_value"] = fv
 
+    @skip_if_zarr_format_3("structured dtypes are not supported in Zarr v3")
+    def test_structured_dtype_fill_value(self) -> None:
+        dtype = np.dtype([("foo", np.int32), ("bar", np.int32)])
+        fill_value = np.zeros((), dtype=dtype)
+        fill_value["foo"] = 42
+        values = np.zeros((2, 2), dtype=dtype)
+        values[0, 0] = fill_value
+
+        original = xr.Dataset({"m": (("x", "y"), values)})
+        original.m.encoding["_FillValue"] = fill_value
+
+        with self.roundtrip(original) as actual:
+            assert_identical(actual, original)
+            np.testing.assert_equal(actual.m.encoding["_FillValue"], fill_value)
+
     @skip_if_zarr_format_2("fill_value is only an encoding key for zarr_format 3")
     def test_zarr_fill_value_in_encoding_on_read(self) -> None:
         # GH #10269: the Zarr array fill_value should be preserved in the
